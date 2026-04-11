@@ -1,8 +1,11 @@
 # competitive-programming
-Competitive programming journey
-Автоматизация рутины при решении задач по алгоритмам с codeforces и подобных сайтов.  
+Competitive programming journey  
+Автоматизация рутины при решении задач по алгоритмам с codeforces и подобных сайтов.    
+
+Функционал:  
 1) создание новой директории
 ```make new DIR=2048C```
 2) type and test your code
 3) сгенерировать код для отправки ```make```
 4) тестирование пока не работает
+
