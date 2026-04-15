@@ -7,7 +7,7 @@ all: full_process
 # Цель для вызова Python-скрипта, создающего tmp.py
 create_tmp_file:
 	@echo "Запуск Python скрипта для создания tmp.py..."
-	python $(PYTHON_SCRIPT)
+	python3 $(PYTHON_SCRIPT)
 
 # Цель для копирования содержимого tmp.py в буфер обмена с помощью pbcopy
 copy_to_clipboard:
