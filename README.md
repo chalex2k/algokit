@@ -4,8 +4,8 @@ Competitive programming journey
 
 Функционал:  
 1) создание новой директории
-```make new DIR=2048C```
+```just new 2048C```
 2) type and test your code
-3) сгенерировать код для отправки ```make```
+3) сгенерировать код для отправки ```just```
 4) тестирование пока не работает
 
