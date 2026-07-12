@@ -1,3 +1,7 @@
+set dotenv-load
+
+task := env("TASK")
+
 all: create_tmp_file copy
 
 copy:
@@ -14,3 +18,12 @@ new DIR:
     @echo "Запись переменной TASK={{DIR}}..."
     echo "TASK={{DIR}}" > .env
     @echo "Готово: файл cf_example.py скопирован в {{DIR}}, переменная окружения TASK установлена."
+
+run_module: # по сути то же самое что и run
+    python3 -m {{task}}.main
+
+run:
+    PYTHONPATH=. python3 {{task}}/main.py
+
+test:
+    python3 -m pytest {{task}}/main.py
