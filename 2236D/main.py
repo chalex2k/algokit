@@ -1,4 +1,5 @@
-from fastio import *
+from fastio.main import *
+
 
 def test_partition():
     for a, k, exp in (

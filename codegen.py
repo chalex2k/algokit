@@ -13,10 +13,10 @@ def replace_import_with_content(source_file, insert_file, output_file):
         with open(insert_file, 'r', encoding='utf-8') as ins:
             insert_content = ins.read()
 
-        # Замена строки "from fastio import *" на содержимое второго файла
+        # Замена строки "from fastio.main import *" на содержимое второго файла
         updated_lines = []
         for line in source_lines:
-            if line.strip() == "from fastio import *":
+            if line.strip() == "from fastio.main import *":
                 updated_lines.append(insert_content)  # Вставка содержимого
             else:
                 updated_lines.append(line)
@@ -45,6 +45,6 @@ if __name__ == "__main__":
         # output_file = sys.argv[3]
 
     source_file = task_dir + '/main.py'
-    insert_file = 'fastio.py'
+    insert_file = 'fastio/main.py'
     output_file = 'tmp.py'
     replace_import_with_content(source_file, insert_file, output_file)

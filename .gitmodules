@@ -1,0 +1,3 @@
+[submodule "fastio"]
+	path = fastio
+	url = git@github.com:chalex2k/py-fastio.git

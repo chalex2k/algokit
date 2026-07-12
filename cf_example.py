@@ -1,4 +1,4 @@
-from fastio import *
+from fastio.main import *
 
 
 def solve():
