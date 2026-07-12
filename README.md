@@ -5,7 +5,9 @@ Competitive programming journey
 Функционал:  
 1) создание новой директории
 ```just new 2048C```
-2) type and test your code
-3) сгенерировать код для отправки ```just```
-4) тестирование пока не работает
+2) type your code
+3) test using unit tests via pytest ```just test```
+4) test using files ```just test_files``` 
+5) сгенерировать код для отправки ```just```
+
 

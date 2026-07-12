@@ -27,3 +27,6 @@ run:
 
 test:
     python3 -m pytest {{task}}/main.py
+
+test_files:
+    python3 -m pytest -q test.py

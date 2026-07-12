@@ -1,61 +1,121 @@
+import importlib
+import difflib
 import os
+import sys
+from pathlib import Path
+
+import pytest
 from dotenv import load_dotenv
 
-# files = (
-#     ('in1', 'out1'),
-#     ('in1', 'out1'),
-#     ('in1', 'out1'),
-# )
 
-
-import importlib
-import sys
-
-# Путь до директории
 load_dotenv(".env")
 
-# var_name1 = os.getenv("VAR_NAME1")
-path_to_package = os.getenv("TASK", "example")  # Default value
+task_dir = Path(os.getenv("TASK", "example"))
 
-# Добавляем путь в sys.path
-if path_to_package not in sys.path:
-    sys.path.append(path_to_package)
+if str(task_dir) not in sys.path:
+    sys.path.append(str(task_dir))
 
-# Имя пакета
-package_name = "main"
+package = importlib.import_module("main")
 
-# Импортируем пакет
-package = importlib.import_module(package_name)
+RED = "\033[31m"
+GREEN = "\033[32m"
+RESET = "\033[0m"
 
 
+def find_test_cases():
+    if not task_dir.exists():
+        return []
 
-def verdict(infn, infile, expected, found):
-    if expected == found:
-        print(infn, 'OK')
-    else:
-        print(infn, 'FAIL')
-        print(infile)
-        print('  expected:')
-        print(expected)
-        print('  found:')
-        print(found)
+    return sorted(
+        path
+        for path in task_dir.iterdir()
+        if path.is_file() and path.name.startswith("in")
+    )
 
 
-files = [f for f in os.listdir(path_to_package+'/') if os.path.isfile(f)]
-infiles = sorted([f for f in files if f.startswith('in')])
-outfiles = sorted([f for f in files if f.startswith('out')])
-tmp = 'tmp'
-print(files, infiles, outfiles)
-for infn, outfn in zip(infiles, outfiles):
-    with open(infn, 'r') as fin, open(tmp, 'w') as ftmp:
-        sys.stdin = fin
-        # print(sys.stdin)
-        sys.stdout = ftmp
-        # Используем пакет
-        package.main()
-        sys.stdout = sys.__stdout__
-    with open(infn, 'r') as fin, open(outfn, 'r') as fout, open(tmp, 'r') as ftmp:
-        content_in = fin.read()
-        content_expected = fout.read()
-        content_found = ftmp.read()
-    verdict(infn, content_in, content_expected, content_found)
+def expected_output_path(input_path):
+    return input_path.with_name("out" + input_path.name[2:])
+
+
+def run_main(input_path):
+    old_stdin = sys.stdin
+    old_stdout = sys.stdout
+    output_path = task_dir / "tmp"
+
+    try:
+        with input_path.open("r") as fin, output_path.open("w") as fout:
+            sys.stdin = fin
+            sys.stdout = fout
+            package.main()
+    finally:
+        sys.stdin = old_stdin
+        sys.stdout = old_stdout
+
+    return output_path.read_text()
+
+
+def show_whitespace(text):
+    return (
+        text.replace(" ", "·")
+        .replace("\t", "→")
+        .replace("\r", "␍")
+        .replace("\n", "↵\n")
+    )
+
+
+def colorize_diff(expected_content, found_content):
+    expected_parts = []
+    found_parts = []
+
+    matcher = difflib.SequenceMatcher(None, expected_content, found_content)
+
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+        expected_part = show_whitespace(expected_content[i1:i2])
+        found_part = show_whitespace(found_content[j1:j2])
+
+        if tag == "equal":
+            expected_parts.append(expected_part)
+            found_parts.append(found_part)
+        elif tag == "delete":
+            expected_parts.append(f"{RED}{expected_part}{RESET}")
+        elif tag == "insert":
+            found_parts.append(f"{GREEN}{found_part}{RESET}")
+        elif tag == "replace":
+            expected_parts.append(f"{RED}{expected_part}{RESET}")
+            found_parts.append(f"{GREEN}{found_part}{RESET}")
+
+    return "".join(expected_parts), "".join(found_parts)
+
+
+def format_failure(input_path, input_content, expected_content, found_content):
+    expected_diff, found_diff = colorize_diff(expected_content, found_content)
+
+    return (
+        f"\nfile: {input_path.name}\n"
+        f"\ninput:\n{input_content}"
+        f"\nexpected:\n{expected_diff}"
+        f"\nfound:\n{found_diff}"
+    )
+
+
+@pytest.mark.parametrize("input_path", find_test_cases(), ids=lambda path: path.name)
+def test_code(input_path):
+    output_path = expected_output_path(input_path)
+
+    if not output_path.exists():
+        pytest.fail(f"Не найден файл с ожидаемым ответом для {input_path.name}: {output_path.name}", pytrace=False)
+
+    input_content = input_path.read_text()
+    expected_content = output_path.read_text()
+    found_content = run_main(input_path)
+
+    if found_content != expected_content:
+        pytest.fail(
+            format_failure(
+                input_path,
+                input_content,
+                expected_content,
+                found_content,
+            ),
+            pytrace=False,
+        )
