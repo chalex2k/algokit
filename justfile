@@ -15,9 +15,11 @@ new DIR:
     mkdir -p "{{DIR}}"
     @echo "Копирование файла cf_example.py в директорию {{DIR}}..."
     cp cf_example.py "{{DIR}}/main.py"
+    @echo "Создание пустых файлов in1.txt и out1.txt..."
+    touch "{{DIR}}/in1.txt" "{{DIR}}/out1.txt"
     @echo "Запись переменной TASK={{DIR}}..."
     echo "TASK={{DIR}}" > .env
-    @echo "Готово: файл cf_example.py скопирован в {{DIR}}, переменная окружения TASK установлена."
+    @echo "Готово: в {{DIR}} созданы main.py, in1.txt и out1.txt, переменная окружения TASK установлена."
 
 run_module: # по сути то же самое что и run
     python3 -m {{task}}.main
