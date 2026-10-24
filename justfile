@@ -11,15 +11,10 @@ create_tmp_file:
   python3 codegen.py
 
 new DIR:
-    @echo "Создание директории {{DIR}}..."
-    mkdir -p "{{DIR}}"
-    @echo "Копирование файла cf_example.py в директорию {{DIR}}..."
-    cp cf_example.py "{{DIR}}/main.py"
-    @echo "Создание пустых файлов in1.txt и out1.txt..."
-    touch "{{DIR}}/in1.txt" "{{DIR}}/out1.txt"
-    @echo "Запись переменной TASK={{DIR}}..."
-    echo "TASK={{DIR}}" > .env
-    @echo "Готово: в {{DIR}} созданы main.py, in1.txt и out1.txt, переменная окружения TASK установлена."
+    python3 task_setup.py "{{DIR}}"
+
+companion PORT="10043":
+    python3 companion_server.py --port "{{PORT}}"
 
 run_module: # по сути то же самое что и run
     python3 -m {{task}}.main
